@@ -1,0 +1,78 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Profile",
+      "description": "User account information and roles",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "fullName": { "type": "string" },
+        "email": { "type": "string" },
+        "phoneNumber": { "type": "string" },
+        "role": { "type": "string", "enum": ["user", "admin"] }
+      },
+      "required": ["uid", "fullName", "email", "role"]
+    },
+    "Application": {
+      "title": "Travel Application",
+      "description": "Application for passport, visa or other services",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "fullName": { "type": "string" },
+        "nationality": { "type": "string" },
+        "dob": { "type": "string" },
+        "phone": { "type": "string" },
+        "email": { "type": "string" },
+        "region": { "type": "string" },
+        "city": { "type": "string" },
+        "kebele": { "type": "string" },
+        "purpose": { "type": "string" },
+        "destination": { "type": "string" },
+        "emergencyContact": { "type": "object" },
+        "documents": { "type": "object" },
+        "signature": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "processing", "approved", "rejected"] },
+        "createdAt": { "type": "number" },
+        "updatedAt": { "type": "number" }
+      },
+      "required": ["userId", "fullName", "purpose", "destination", "status", "createdAt", "updatedAt"]
+    },
+    "Payment": {
+      "title": "Payment Record",
+      "description": "Record of service fee payment",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "applicationId": { "type": "string" },
+        "userId": { "type": "string" },
+        "amount": { "type": "number" },
+        "bankName": { "type": "string" },
+        "accountNumber": { "type": "string" },
+        "receiptUrl": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "confirmed"] },
+        "createdAt": { "type": "number" }
+      },
+      "required": ["applicationId", "userId", "amount", "receiptUrl", "status", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "Store user profiles"
+    },
+    "/applications/{appId}": {
+      "schema": "Application",
+      "description": "Travel service applications"
+    },
+    "/payments/{paymentId}": {
+      "schema": "Payment",
+      "description": "Payment records"
+    },
+    "/admins/{userId}": {
+      "schema": { "type": "object", "properties": { "email": { "type": "string" } } },
+      "description": "Registry of admin users"
+    }
+  }
+}
