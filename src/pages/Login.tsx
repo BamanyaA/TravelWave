@@ -21,7 +21,6 @@ export default function Login() {
       } else {
         navigate('/dashboard');
       }
-      window.location.reload();
     } catch (err: any) {
       setError(err.message || 'Login failed');
     } finally {

@@ -14,7 +14,6 @@ export default function Navbar() {
   const handleLogout = () => {
     authService.logout();
     navigate('/');
-    window.location.reload();
   };
 
   const navLinks = [

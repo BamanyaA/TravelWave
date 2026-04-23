@@ -26,7 +26,6 @@ export default function Signup() {
         formData.password
       );
       navigate('/dashboard');
-      window.location.reload();
     } catch (err: any) {
       setError(err.message || 'Signup failed');
     } finally {
