@@ -14,6 +14,7 @@ export default function PaymentPage() {
   
   const [loading, setLoading] = useState(false);
   const [receipt, setReceipt] = useState<string | null>(null);
+  const [file, setFile] = useState<File | null>(null);
 
   const bankDetails = {
     bank: "Commercial Bank of Ethiopia",
@@ -26,21 +27,26 @@ export default function PaymentPage() {
   };
 
   const handleReceiptUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) setReceipt(URL.createObjectURL(file));
+    const selectedFile = e.target.files?.[0];
+    if (selectedFile) {
+      setFile(selectedFile);
+      setReceipt(URL.createObjectURL(selectedFile));
+    }
   };
 
   const handleConfirm = async () => {
-    if (!user || !appId || !receipt) return;
+    if (!user || !appId || !file) return;
     setLoading(true);
     try {
+      const uploadedUrl = await dataService.uploadReceipt(file, appId);
+      
       await dataService.createPayment({
         applicationId: appId,
         userId: user.uid,
         amount: 2000, // Fixed for demo
         bankName: bankDetails.bank,
         accountNumber: bankDetails.account,
-        receiptUrl: receipt
+        receiptUrl: uploadedUrl
       });
       confetti({
         particleCount: 150,

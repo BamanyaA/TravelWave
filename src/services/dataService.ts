@@ -18,7 +18,8 @@ import {
   onAuthStateChanged,
   User as FirebaseUser
 } from 'firebase/auth';
-import { db, auth } from '../lib/firebase';
+import { db, auth, storage } from '../lib/firebase';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { Application, Payment, User, ApplicationStatus } from '../types';
 
 interface FirestoreErrorInfo {
@@ -132,6 +133,16 @@ export const dataService = {
       return newPayment as Payment;
     } catch (error) {
       handleFirestoreError(error, 'create', 'payments');
+    }
+  },
+
+  async uploadReceipt(file: File, applicationId: string): Promise<string> {
+    try {
+      const storageRef = ref(storage, `receipts/${applicationId}/${Date.now()}_${file.name}`);
+      const snapshot = await uploadBytes(storageRef, file);
+      return await getDownloadURL(snapshot.ref);
+    } catch (error: any) {
+      throw new Error(`Upload failed: ${error.message}`);
     }
   }
 };

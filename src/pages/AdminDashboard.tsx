@@ -1,15 +1,17 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
-import { ShieldCheck, Package, Clock, Eye, Check, XCircle, Search, Filter } from 'lucide-react';
+import { ShieldCheck, Package, Clock, Eye, Check, XCircle, Search, Filter, Image as ImageIcon, ExternalLink } from 'lucide-react';
 import { dataService, authService } from '../services/dataService';
 import { useAuth } from '../components/AuthProvider';
-import { Application } from '../types';
+import { Application, Payment } from '../types';
 import { useNavigate } from 'react-router-dom';
 
 export default function AdminDashboard() {
   const [apps, setApps] = useState<Application[]>([]);
+  const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [selectedReceipt, setSelectedReceipt] = useState<string | null>(null);
   const navigate = useNavigate();
   const { user } = useAuth();
 
@@ -18,10 +20,16 @@ export default function AdminDashboard() {
       navigate('/login');
       return;
     }
-    dataService.getApplications().then(res => {
-      setApps(res);
+    const fetchData = async () => {
+      const [appsRes, paymentsRes] = await Promise.all([
+        dataService.getApplications(),
+        dataService.getPayments()
+      ]);
+      setApps(appsRes);
+      setPayments(paymentsRes);
       setLoading(false);
-    });
+    };
+    fetchData();
   }, [user, navigate]);
 
   const updateStatus = async (id: string, status: Application['status']) => {
@@ -112,6 +120,15 @@ export default function AdminDashboard() {
                     </td>
                     <td className="px-8 py-6 text-right">
                       <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        {payments.find(p => p.applicationId === app.id) && (
+                          <button 
+                            onClick={() => setSelectedReceipt(payments.find(p => p.applicationId === app.id)!.receiptUrl)}
+                            className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                            title="View Receipt"
+                          >
+                            <ImageIcon className="h-5 w-5" />
+                          </button>
+                        )}
                         <button 
                           onClick={() => updateStatus(app.id, 'processing')}
                           className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
@@ -147,6 +164,51 @@ export default function AdminDashboard() {
           )}
         </div>
       </div>
+
+      {/* Receipt Modal */}
+      {selectedReceipt && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white rounded-[2rem] max-w-4xl w-full p-8 relative overflow-hidden"
+          >
+            <button 
+              onClick={() => setSelectedReceipt(null)}
+              className="absolute top-6 right-6 p-2 bg-gray-100 hover:bg-gray-200 rounded-full transition-colors z-10"
+            >
+              <XCircle className="h-6 w-6 text-gray-500" />
+            </button>
+            
+            <div className="text-center mb-6">
+              <h3 className="text-2xl font-bold text-gray-900">Payment Receipt</h3>
+              <p className="text-gray-500 text-sm">Verified Transaction Proof</p>
+            </div>
+
+            <div className="aspect-[4/3] w-full bg-gray-50 rounded-2xl overflow-hidden border border-gray-100 flex items-center justify-center">
+              <img 
+                src={selectedReceipt} 
+                className="max-h-full max-w-full object-contain" 
+                alt="Receipt Detail"
+                onError={(e) => {
+                  (e.currentTarget as HTMLImageElement).src = "https://placehold.co/600x400?text=Receipt+Link+Expired"
+                }}
+              />
+            </div>
+            
+            <div className="mt-8 flex justify-center">
+              <a 
+                href={selectedReceipt} 
+                target="_blank" 
+                rel="no-referrer"
+                className="flex items-center gap-2 px-8 py-4 bg-indigo-600 text-white rounded-2xl font-bold shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all"
+              >
+                <ExternalLink className="h-5 w-5" /> Open in New Tab
+              </a>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 }
