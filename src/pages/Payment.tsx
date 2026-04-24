@@ -52,7 +52,7 @@ export default function PaymentPage() {
       await dataService.createPayment({
         applicationId: appId,
         userId: user.uid,
-        amount: 2000, // Fixed for demo
+        amount: 5500, // Updated amount
         bankName: bankDetails.bank,
         accountNumber: bankDetails.account,
         receiptUrl: uploadedUrl
@@ -91,7 +91,7 @@ export default function PaymentPage() {
             <div className="flex justify-between items-end">
               <div>
                 <p className="text-sm opacity-80 mb-1">Service Fee</p>
-                <p className="text-4xl font-black">2,000 <span className="text-lg">ETB</span></p>
+                <p className="text-4xl font-black">5,500 <span className="text-lg">ETB</span></p>
               </div>
               <p className="text-xs bg-white/20 px-3 py-1 rounded-full backdrop-blur-md">Visa Processing</p>
             </div>

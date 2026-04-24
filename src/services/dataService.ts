@@ -139,8 +139,8 @@ export const dataService = {
   async uploadReceipt(file: File, applicationId: string): Promise<string> {
     const uploadWithTimeout = async () => {
       try {
-        if (file.size > 5 * 1024 * 1024) {
-          throw new Error("File too large. Max 5MB allowed.");
+        if (file.size > 10 * 1024 * 1024) {
+          throw new Error("File too large. Max 10MB allowed.");
         }
 
         console.log(`Starting upload: ${file.name}`);
@@ -149,7 +149,7 @@ export const dataService = {
         // Use a timeout for the upload
         const uploadTask = uploadBytes(storageRef, file);
         const timeout = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error("Upload timed out (15s).")), 15000)
+          setTimeout(() => reject(new Error("Upload timed out (60s). This usually happens due to slow internet or a very large file.")), 60000)
         );
 
         await Promise.race([uploadTask, timeout]);
