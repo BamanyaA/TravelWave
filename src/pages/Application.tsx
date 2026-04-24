@@ -52,6 +52,53 @@ export default function ApplicationForm() {
     }
   };
 
+  const getCoordinates = (e: any) => {
+    const canvas = sigCanvasRef.current;
+    if (!canvas) return { x: 0, y: 0 };
+
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+    return {
+      x: (clientX - rect.left) * scaleX,
+      y: (clientY - rect.top) * scaleY
+    };
+  };
+
+  const startDrawing = (e: any) => {
+    const ctx = sigCanvasRef.current?.getContext('2d');
+    if (ctx) {
+      ctx.beginPath();
+      const { x, y } = getCoordinates(e);
+      ctx.moveTo(x, y);
+    }
+  };
+
+  const draw = (e: any) => {
+    if (e.buttons !== 1 && (!e.touches || e.touches.length === 0)) return;
+    
+    // Prevent scrolling on touch
+    if (e.touches) {
+      e.preventDefault();
+    }
+
+    const ctx = sigCanvasRef.current?.getContext('2d');
+    if (ctx) {
+      ctx.lineWidth = 2;
+      ctx.lineCap = 'round';
+      ctx.strokeStyle = '#000';
+      const { x, y } = getCoordinates(e);
+      ctx.lineTo(x, y);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+    }
+  };
+
   const handleSignatureEnd = () => {
     const canvas = sigCanvasRef.current;
     if (canvas) {
@@ -338,24 +385,11 @@ export default function ApplicationForm() {
                     height={200}
                     onMouseUp={handleSignatureEnd}
                     onTouchEnd={handleSignatureEnd}
-                    className="w-full h-48 bg-white rounded-2xl cursor-crosshair shadow-inner"
-                    onMouseMove={(e) => {
-                      if (e.buttons !== 1) return;
-                      const ctx = sigCanvasRef.current?.getContext('2d');
-                      if (ctx) {
-                        ctx.lineWidth = 2;
-                        ctx.lineCap = 'round';
-                        ctx.strokeStyle = '#000';
-                        ctx.lineTo(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
-                        ctx.stroke();
-                        ctx.beginPath();
-                        ctx.moveTo(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
-                      }
-                    }}
-                    onMouseDown={(e) => {
-                      const ctx = sigCanvasRef.current?.getContext('2d');
-                      if (ctx) ctx.beginPath();
-                    }}
+                    onMouseMove={draw}
+                    onTouchMove={draw}
+                    onMouseDown={startDrawing}
+                    onTouchStart={startDrawing}
+                    className="w-full h-48 bg-white rounded-2xl cursor-crosshair shadow-inner touch-none"
                   />
                   <div className="flex justify-between mt-4 px-2">
                     <p className="text-xs text-gray-500 italic">Please sign inside the box using your mouse or touch screen.</p>
