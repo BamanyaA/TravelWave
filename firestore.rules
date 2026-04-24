@@ -41,7 +41,7 @@ service cloud.firestore {
     // Application Validation
     function isValidApplication(data) {
       return data.keys().hasAll(['userId', 'fullName', 'purpose', 'destination', 'status', 'createdAt', 'updatedAt']) &&
-             data.userId == request.auth.uid &&
+             data.userId is string &&
              data.fullName is string && data.fullName.size() <= 100 &&
              data.purpose in ['Tourism', 'Work', 'Study', 'Business'] &&
              data.destination is string && data.destination.size() <= 100 &&
@@ -55,6 +55,7 @@ service cloud.firestore {
       allow list: if isSignedIn() && (isAdmin() || (resource.data.userId == request.auth.uid));
       
       allow create: if isSignedIn() && isValidId(appId) && isValidApplication(incoming()) &&
+                      incoming().userId == request.auth.uid &&
                       incoming().status == 'pending' &&
                       // Allow for small clock drift (within 1 minute)
                       incoming().createdAt >= request.time.toMillis() - 60000 &&
