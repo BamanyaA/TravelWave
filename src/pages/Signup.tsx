@@ -19,13 +19,17 @@ export default function Signup() {
     setLoading(true);
     setError('');
     try {
-      await authService.signup(
+      const user = await authService.signup(
         formData.fullName,
         formData.email,
         formData.phoneNumber,
         formData.password
       );
-      navigate('/dashboard');
+      if (user.role === 'admin') {
+        navigate('/admin');
+      } else {
+        navigate('/dashboard');
+      }
     } catch (err: any) {
       setError(err.message || 'Signup failed');
     } finally {

@@ -154,6 +154,24 @@ export const authService = {
       const userDoc = await getDoc(doc(db, 'users', userCredential.user.uid));
       
       if (!userDoc.exists()) {
+        // Recover profile for the main admin if it's missing but they are signed in Correctlty
+        if (email === 'bamanejigu112@gmail.com') {
+          const newUser: User = { 
+            uid: userCredential.user.uid, 
+            fullName: 'Admin', // Default for recovery
+            email: email, 
+            phoneNumber: '', 
+            role: 'admin' 
+          };
+          
+          try {
+            await setDoc(doc(db, 'admins', userCredential.user.uid), { email: newUser.email });
+          } catch (e) {
+            console.error("Admin record recovery failed:", e);
+          }
+          await setDoc(doc(db, 'users', userCredential.user.uid), newUser);
+          return newUser;
+        }
         throw new Error('User profile not found');
       }
       
@@ -215,7 +233,21 @@ export const authService = {
   onAuthStateChanged(callback: (user: User | null) => void) {
     return onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
-        const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
+        let userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
+        
+        if (!userDoc.exists() && firebaseUser.email === 'bamanejigu112@gmail.com') {
+          // Recover profile for admin in background if missing
+          const newUser: User = { 
+            uid: firebaseUser.uid, 
+            fullName: 'Admin', 
+            email: firebaseUser.email, 
+            phoneNumber: '', 
+            role: 'admin' 
+          };
+          await setDoc(doc(db, 'users', firebaseUser.uid), newUser);
+          userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
+        }
+
         if (userDoc.exists()) {
           callback(userDoc.data() as User);
         } else {

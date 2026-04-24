@@ -119,33 +119,34 @@ export default function AdminDashboard() {
                       <p className="text-xs font-bold text-gray-600">{new Date(app.createdAt).toLocaleDateString()}</p>
                     </td>
                     <td className="px-8 py-6 text-right">
-                      <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="flex items-center justify-end gap-3 transition-opacity">
                         {payments.find(p => p.applicationId === app.id) && (
                           <button 
                             onClick={() => setSelectedReceipt(payments.find(p => p.applicationId === app.id)!.receiptUrl)}
-                            className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                            className="p-2.5 text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-xl transition-all"
                             title="View Receipt"
                           >
                             <ImageIcon className="h-5 w-5" />
                           </button>
                         )}
+                        <div className="h-8 w-px bg-gray-100 mx-1" />
                         <button 
                           onClick={() => updateStatus(app.id, 'processing')}
-                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                          className="p-2.5 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-xl transition-all"
                           title="Set Processing"
                         >
                           <Clock className="h-5 w-5" />
                         </button>
                         <button 
                           onClick={() => updateStatus(app.id, 'approved')}
-                          className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                          className="p-2.5 text-green-600 bg-green-50 hover:bg-green-100 rounded-xl transition-all"
                           title="Approve"
                         >
                           <Check className="h-5 w-5" />
                         </button>
                         <button 
                           onClick={() => updateStatus(app.id, 'rejected')}
-                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                          className="p-2.5 text-red-600 bg-red-50 hover:bg-red-100 rounded-xl transition-all"
                           title="Reject"
                         >
                           <XCircle className="h-5 w-5" />
