@@ -77,13 +77,15 @@ service cloud.firestore {
 
     // Payment Validation
     function isValidPayment(data) {
-      return data.keys().hasAll(['applicationId', 'userId', 'amount', 'receiptUrl', 'status', 'createdAt']) &&
+      return data.keys().hasAll(['applicationId', 'userId', 'amount', 'receiptUrl', 'status', 'createdAt', 'bankName', 'accountNumber']) &&
              data.userId == request.auth.uid &&
              data.applicationId is string &&
              data.amount is number &&
              data.receiptUrl is string &&
              data.status in ['pending', 'confirmed'] &&
-             data.createdAt is number;
+             data.createdAt is number &&
+             data.bankName is string &&
+             data.accountNumber is string;
     }
 
     match /payments/{paymentId} {
@@ -92,8 +94,8 @@ service cloud.firestore {
       
       allow create: if isSignedIn() && isValidId(paymentId) && isValidPayment(incoming()) &&
                       incoming().status == 'pending' &&
-                      incoming().createdAt >= request.time.toMillis() - 60000 &&
-                      incoming().createdAt <= request.time.toMillis() + 60000 &&
+                      incoming().createdAt >= request.time.toMillis() - 300000 &&
+                      incoming().createdAt <= request.time.toMillis() + 300000 &&
                       // Verify application ownership
                       get(/databases/$(database)/documents/applications/$(incoming().applicationId)).data.userId == request.auth.uid;
 

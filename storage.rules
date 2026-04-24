@@ -1,0 +1,13 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /receipts/{applicationId}/{fileName} {
+      // Allow authenticated users to upload receipts
+      allow write: if request.auth != null;
+      // Allow admins and owners (via applicationId) to read
+      // Note: In storage, we can't easily check firestore documents in rules
+      // so we use a simpler auth check for now or path naming
+      allow read: if request.auth != null;
+    }
+  }
+}

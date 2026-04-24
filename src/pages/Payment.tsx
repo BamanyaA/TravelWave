@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { Landmark, Copy, UploadCloud, CheckCircle, Loader2, Info } from 'lucide-react';
@@ -11,8 +11,15 @@ export default function PaymentPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const appId = searchParams.get('appId');
+
+  useEffect(() => {
+    if (!appId) {
+      navigate('/dashboard');
+    }
+  }, [appId, navigate]);
   
   const [loading, setLoading] = useState(false);
+  const [statusMsg, setStatusMsg] = useState<string | null>(null);
   const [receipt, setReceipt] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
 
@@ -37,9 +44,11 @@ export default function PaymentPage() {
   const handleConfirm = async () => {
     if (!user || !appId || !file) return;
     setLoading(true);
+    setStatusMsg("Uploading receipt...");
     try {
       const uploadedUrl = await dataService.uploadReceipt(file, appId);
       
+      setStatusMsg("Confirming payment...");
       await dataService.createPayment({
         applicationId: appId,
         userId: user.uid,
@@ -48,6 +57,7 @@ export default function PaymentPage() {
         accountNumber: bankDetails.account,
         receiptUrl: uploadedUrl
       });
+      setStatusMsg("Payment success!");
       confetti({
         particleCount: 150,
         spread: 70,
@@ -55,8 +65,9 @@ export default function PaymentPage() {
         colors: ['#2563eb', '#10b981', '#f59e0b']
       });
       setTimeout(() => navigate('/dashboard'), 2000);
-    } catch (err) {
-      alert('Payment confirmation failed.');
+    } catch (err: any) {
+      console.error("Payment Error:", err);
+      alert(`Payment confirmation failed: ${err.message || 'Please check your internet connection and try again.'}`);
     } finally {
       setLoading(false);
     }
@@ -143,15 +154,18 @@ export default function PaymentPage() {
             <button
               onClick={handleConfirm}
               disabled={!receipt || loading}
-              className="w-full bg-blue-600 text-white py-5 rounded-2xl font-bold hover:bg-blue-700 transition-all shadow-xl shadow-blue-100 flex items-center justify-center gap-3 disabled:opacity-50"
+              className="w-full bg-blue-600 text-white py-5 rounded-2xl font-bold hover:bg-blue-700 transition-all shadow-xl shadow-blue-100 flex flex-col items-center justify-center gap-1 disabled:opacity-50"
             >
               {loading ? (
-                <Loader2 className="h-6 w-6 animate-spin" />
-              ) : (
                 <>
-                  <CheckCircle className="h-6 w-6" />
-                  Confirm Payment
+                  <Loader2 className="h-6 w-6 animate-spin mb-1" />
+                  <span className="text-xs opacity-80 uppercase tracking-widest">{statusMsg}</span>
                 </>
+              ) : (
+                <div className="flex items-center gap-3">
+                  <CheckCircle className="h-6 w-6" />
+                  <span>Confirm Payment</span>
+                </div>
               )}
             </button>
           </div>

@@ -137,12 +137,37 @@ export const dataService = {
   },
 
   async uploadReceipt(file: File, applicationId: string): Promise<string> {
+    const uploadWithTimeout = async () => {
+      try {
+        if (file.size > 5 * 1024 * 1024) {
+          throw new Error("File too large. Max 5MB allowed.");
+        }
+
+        console.log(`Starting upload: ${file.name}`);
+        const storageRef = ref(storage, `receipts/${applicationId}/${Date.now()}_${file.name}`);
+        
+        // Use a timeout for the upload
+        const uploadTask = uploadBytes(storageRef, file);
+        const timeout = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error("Upload timed out (15s).")), 15000)
+        );
+
+        await Promise.race([uploadTask, timeout]);
+        
+        console.log("Upload finished, getting URL...");
+        return await getDownloadURL(storageRef);
+      } catch (error: any) {
+        console.error("Upload process error:", error);
+        throw error;
+      }
+    };
+
     try {
-      const storageRef = ref(storage, `receipts/${applicationId}/${Date.now()}_${file.name}`);
-      const snapshot = await uploadBytes(storageRef, file);
-      return await getDownloadURL(snapshot.ref);
+      return await uploadWithTimeout();
     } catch (error: any) {
-      throw new Error(`Upload failed: ${error.message}`);
+      console.error("Critical Upload Failure:", error);
+      const msg = error.message || "Unknown storage error";
+      throw new Error(`Receipt upload failed: ${msg}. If this persists, please contact support or check your internet.`);
     }
   }
 };

@@ -92,10 +92,9 @@ export default function Login() {
           </div>
           
           <div className="mt-8 pt-8 border-t border-gray-100">
-            <p className="text-[10px] text-center text-gray-400 uppercase tracking-widest">Demo Admin Credentials</p>
-            <p className="text-xs text-center text-gray-500 mt-2">
-              Email: <span className="font-mono bg-gray-50 px-1">admin@travelwave.com</span><br/>
-              Pass: <span className="font-mono bg-gray-50 px-1">admin123</span>
+            <p className="text-[10px] text-center text-gray-400 uppercase tracking-widest">TravelWave Security</p>
+            <p className="text-xs text-center text-gray-400 mt-2 italic flex items-center justify-center gap-1">
+              Encrypted connection • Secure Authentication
             </p>
           </div>
         </div>
