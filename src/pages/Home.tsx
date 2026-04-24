@@ -44,7 +44,7 @@ export default function Home() {
               <span className="text-blue-600 italic">Travel Services</span>
             </h1>
             <p className="text-xl text-gray-600 mb-8 max-w-lg">
-              Expert assistance for Passport Processing, Visas, Hotel Bookings, and Student Support in Ethiopia.
+              Expert assistance for Passport Processing, Visas, Hotel Bookings, and Student Support.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <Link 
@@ -67,7 +67,7 @@ export default function Home() {
                 ))}
               </div>
               <p className="text-sm text-gray-500">
-                <span className="text-gray-900 font-bold">500+</span> applications processed <br /> this month in Addis Ababa.
+                <span className="text-gray-900 font-bold">500+</span> applications processed <br /> this month.
               </p>
             </div>
           </motion.div>

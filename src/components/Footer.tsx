@@ -14,7 +14,7 @@ export default function Footer() {
         <div>
           <h3 className="text-white text-xl font-bold mb-4">TravelWave Agency</h3>
           <p className="text-sm leading-relaxed mb-6">
-            Providing reliable and fast travel document processing services in Ethiopia. 
+            Providing reliable and fast travel document processing services globally. 
             Your gateway to the world starts here.
           </p>
           <div className="flex space-x-4">
@@ -29,11 +29,11 @@ export default function Footer() {
           <ul className="space-y-4">
             <li className="flex items-start gap-3">
               <MapPin className="h-5 w-5 text-blue-500 shrink-0" />
-              <span>Bole Road, Addis Ababa, Ethiopia</span>
+              <span>Calgary, Canada</span>
             </li>
-            <li className="flex items-center gap-3 cursor-pointer hover:text-white transition-colors" onClick={() => copyToClipboard("+251 912 345 678")}>
-              <Phone className="h-5 w-5 text-blue-500" />
-              <span>+251 912 345 678</span>
+            <li className="flex items-center gap-3 cursor-pointer hover:text-white transition-colors" onClick={() => copyToClipboard("+1 (270) 406-8033")}>
+              <MessageCircle className="h-5 w-5 text-blue-500" />
+              <span>+1 (270) 406-8033 (WhatsApp)</span>
             </li>
             <li className="flex items-center gap-3">
               <Mail className="h-5 w-5 text-blue-500" />
