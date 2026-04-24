@@ -235,17 +235,37 @@ export const authService = {
       if (firebaseUser) {
         let userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
         
-        if (!userDoc.exists() && firebaseUser.email === 'bamanejigu112@gmail.com') {
-          // Recover profile for admin in background if missing
-          const newUser: User = { 
-            uid: firebaseUser.uid, 
-            fullName: 'Admin', 
-            email: firebaseUser.email, 
-            phoneNumber: '', 
-            role: 'admin' 
-          };
-          await setDoc(doc(db, 'users', firebaseUser.uid), newUser);
-          userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
+        // Admin recovery gate
+        if (firebaseUser.email === 'bamanejigu112@gmail.com') {
+          const adminDoc = await getDoc(doc(db, 'admins', firebaseUser.uid));
+          if (!adminDoc.exists()) {
+            try {
+              await setDoc(doc(db, 'admins', firebaseUser.uid), { email: firebaseUser.email });
+              console.log("Admin record reconstructed");
+            } catch (e) {
+              console.error("Admin record reconstruction failed:", e);
+            }
+          }
+
+          if (!userDoc.exists()) {
+            const newUser: User = { 
+              uid: firebaseUser.uid, 
+              fullName: 'Admin', 
+              email: firebaseUser.email, 
+              phoneNumber: '', 
+              role: 'admin' 
+            };
+            try {
+              await setDoc(doc(db, 'users', firebaseUser.uid), newUser);
+              userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
+            } catch (e) {
+              console.error("User profile reconstruction failed:", e);
+            }
+          } else if (userDoc.data()?.role !== 'admin') {
+            // Ensure role is admin if metadata matches
+            await updateDoc(doc(db, 'users', firebaseUser.uid), { role: 'admin' });
+            userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
+          }
         }
 
         if (userDoc.exists()) {

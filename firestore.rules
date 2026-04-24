@@ -103,7 +103,7 @@ service cloud.firestore {
     }
 
     match /admins/{userId} {
-      allow read: if isAdmin();
+      allow read: if isAdmin() || isOwner(userId);
       allow create: if isOwner(userId) && request.auth.token.email == 'bamanejigu112@gmail.com';
       allow write: if false; 
     }

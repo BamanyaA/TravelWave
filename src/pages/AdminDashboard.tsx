@@ -10,6 +10,7 @@ export default function AdminDashboard() {
   const [apps, setApps] = useState<Application[]>([]);
   const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [selectedReceipt, setSelectedReceipt] = useState<string | null>(null);
   const navigate = useNavigate();
@@ -21,13 +22,20 @@ export default function AdminDashboard() {
       return;
     }
     const fetchData = async () => {
-      const [appsRes, paymentsRes] = await Promise.all([
-        dataService.getApplications(),
-        dataService.getPayments()
-      ]);
-      setApps(appsRes);
-      setPayments(paymentsRes);
-      setLoading(false);
+      try {
+        setError(null);
+        const [appsRes, paymentsRes] = await Promise.all([
+          dataService.getApplications(),
+          dataService.getPayments()
+        ]);
+        setApps(appsRes || []);
+        setPayments(paymentsRes || []);
+      } catch (err: any) {
+        console.error("Dashboard data fetch failed:", err);
+        setError("Failed to load dashboard data. Please check your permissions.");
+      } finally {
+        setLoading(false);
+      }
     };
     fetchData();
   }, [user, navigate]);
@@ -74,6 +82,12 @@ export default function AdminDashboard() {
             </button>
           </div>
         </header>
+
+        {error && (
+          <div className="mb-8 p-4 bg-red-50 border border-red-100 text-red-600 rounded-2xl text-center font-bold">
+            {error}
+          </div>
+        )}
 
         <div className="bg-white rounded-[2rem] shadow-xl border border-gray-100 overflow-hidden">
           <div className="overflow-x-auto">
