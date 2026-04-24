@@ -20,7 +20,7 @@ export default function Navbar() {
     { name: 'Home', path: '/' },
     { name: 'Services', path: '/#services' },
     { name: 'Apply Now', path: '/apply' },
-    { name: 'Dashboard', path: '/dashboard' },
+    { name: user?.role === 'admin' ? 'Admin Panel' : 'Dashboard', path: user?.role === 'admin' ? '/admin' : '/dashboard' },
     { name: 'Contact', path: '/#contact' },
   ];
 

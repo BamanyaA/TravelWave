@@ -183,7 +183,7 @@ export const authService = {
         if (email === 'bamanejigu112@gmail.com') {
           const newUser: User = { 
             uid: userCredential.user.uid, 
-            fullName: 'Admin', // Default for recovery
+            fullName: 'Admin', 
             email: email, 
             phoneNumber: '', 
             role: 'admin' 
@@ -191,16 +191,30 @@ export const authService = {
           
           try {
             await setDoc(doc(db, 'admins', userCredential.user.uid), { email: newUser.email });
+            await setDoc(doc(db, 'users', userCredential.user.uid), newUser);
           } catch (e) {
             console.error("Admin record recovery failed:", e);
           }
-          await setDoc(doc(db, 'users', userCredential.user.uid), newUser);
           return newUser;
         }
         throw new Error('User profile not found');
       }
+
+      const userData = userDoc.data() as User;
       
-      return userDoc.data() as User;
+      // Safety check: if email matches admin but role is wrong, correct it
+      if (email === 'bamanejigu112@gmail.com' && userData.role !== 'admin') {
+        try {
+          await updateDoc(doc(db, 'users', userCredential.user.uid), { role: 'admin' });
+          userData.role = 'admin';
+          // Also ensure admins collection entry exists
+          await setDoc(doc(db, 'admins', userCredential.user.uid), { email: email });
+        } catch (e) {
+          console.error("Failed to sync admin role:", e);
+        }
+      }
+      
+      return userData;
     } catch (error: any) {
       throw new Error(error.message || 'Login failed');
     }
