@@ -279,13 +279,17 @@ export default function ApplicationForm() {
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-bold text-gray-700">Destination Country</label>
-                    <input 
-                      type="text" 
+                    <select 
                       value={formData.destination}
                       onChange={e => setFormData({...formData, destination: e.target.value})}
-                      className="w-full px-4 py-3 bg-gray-50 rounded-xl outline-none border-0 focus:ring-2 focus:ring-blue-500" 
-                      placeholder="e.g. United Arab Emirates"
-                    />
+                      className="w-full px-4 py-3 bg-gray-50 rounded-xl outline-none border-0 focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="">Select a country</option>
+                      <option value="Canada">Canada</option>
+                      <option value="Europe">Europe</option>
+                      <option value="Qatar">Qatar</option>
+                      <option value="UAE">UAE</option>
+                    </select>
                   </div>
                 </div>
               </div>
